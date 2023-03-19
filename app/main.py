@@ -43,7 +43,7 @@ async def add_potential_cheater(interaction: discord.Interaction, *, urls_profil
     for url in urls_profile.split(' '):
         if (steamIdUser := steam.steamid.from_url(url)) is None:
             continue
-        if (session.query(Cheater).filter_by(id_steam=steamIdUser.as_64).first()) is not None:
+        if (session.query(Cheater).filter_by(steamId=steamIdUser.as_64).first()) is not None:
             continue
         validUsers.append(steamIdUser)
     if len(validUsers) == 0:
@@ -51,34 +51,45 @@ async def add_potential_cheater(interaction: discord.Interaction, *, urls_profil
         return
     logger.info(f"Adding {len(validUsers)} users to database")
     logger.debug(f"Users: {validUsers}")
-    steamUsersInfo = steam_api.ISteamUser.GetPlayerSummaries(steamids=[user.as_64 for user in validUsers])['response']['players']
-    steamUsersBans = steam_api.ISteamUser.GetPlayerBans(steamids=[user.as_64 for user in validUsers])['players']
-    for steamUserInfo, steamUserBans in zip(steamUsersInfo, steamUsersBans):
-        cheater = Cheater(
-            added_by=interaction.user.id,
-            steamId=steamUserInfo['steamid'],
-            name=steamUserInfo['personaname'],
-            nbr_VAC=steamUserBans['NumberOfVACBans'],
-            nbr_game_bans=steamUserBans['NumberOfGameBans'],
-            nbr_community_bans=steamUserBans['NumberOfGameBans'],
-            days_since_last_ban=steamUserBans['DaysSinceLastBan']
-        )
-        session.add(cheater)
-        session.commit()
-    # steamUserInfo = steam_api.ISteamUser.GetPlayerSummaries(steamids=steamIdUser.as_64)['response']['players'][0]
-    # steamUserBans = steam_api.ISteamUser.GetPlayerBans(steamids=steamIdUser.as_64)['players'][0]
-    # cheater = Cheater(
-    #     added_by=interaction.user.id,
-    #     steamId=steamIdUser.as_64,
-    #     name=steamUserInfo['personaname'],
-    #     nbr_VAC=steamUserBans['NumberOfVACBans'],
-    #     nbr_game_bans=steamUserBans['NumberOfGameBans'],
-    #     nbr_community_bans=steamUserBans['NumberOfGameBans'],
-    #     days_since_last_ban=steamUserBans['DaysSinceLastBan']
-    # )
-    # session.add(cheater)
-    # session.commit()
-    # await interaction.response.send_message(f"User `{steamUserInfo['personaname']}` added to the database")
+
+    for i in range(0, len(validUsers), 100):
+        listIds = [str(user.as_64) for user in validUsers[i:i+100]]
+        steamUsersInfo = steam_api.ISteamUser.GetPlayerSummaries(steamids=','.join(listIds))['response']['players']
+        steamUsersBans = steam_api.ISteamUser.GetPlayerBans(steamids=','.join(listIds))['players']
+        for steamUserInfo, steamUserBans in zip(steamUsersInfo, steamUsersBans):
+            cheater = Cheater(
+                added_by=interaction.user.id,
+                steamId=steamUserInfo['steamid'],
+                name=steamUserInfo['personaname'],
+                nbr_VAC=steamUserBans['NumberOfVACBans'],
+                nbr_game_bans=steamUserBans['NumberOfGameBans'],
+                nbr_community_bans=steamUserBans['NumberOfGameBans'],
+                days_since_last_ban=steamUserBans['DaysSinceLastBan']
+            )
+            session.add(cheater)
+            session.commit()
+    await interaction.response.send_message(f"Added {len(validUsers)} users to database", ephemeral=False)
+
+@client.tree.command(name="check_all_cheaters", description="Check all cheaters in the database")
+async def check_all_cheaters(interaction: discord.Interaction) -> None:
+    session = Session()
+    cheaters = session.query(Cheater).all()
+    if len(cheaters) == 0:
+        await interaction.response.send_message("No cheaters in database", ephemeral=True)
+        return
+    logger.info(f"Checking {len(cheaters)} users in database")
+    logger.debug(f"Users: {cheaters}")
+    for i in range(0, len(cheaters), 100):
+        listIds = [str(cheater.steamId) for cheater in cheaters[i:i+100]]
+        steamUsersBans = steam_api.ISteamUser.GetPlayerBans(steamids=','.join(listIds))['players']
+        for cheater, steamUserBans in zip(cheaters[i:i+100], steamUsersBans):
+            await interaction.channel.send(f"Checking `{cheater.name}`")
+            cheater.nbr_VAC = steamUserBans['NumberOfVACBans']
+            cheater.nbr_game_bans = steamUserBans['NumberOfGameBans']
+            cheater.nbr_community_bans = steamUserBans['NumberOfGameBans']
+            cheater.days_since_last_ban = steamUserBans['DaysSinceLastBan']
+            session.commit()
+    await interaction.response.send_message(f"Done", ephemeral=False)
 
 if __name__ == '__main__':
     # set up sqlalchemy

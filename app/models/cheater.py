@@ -10,7 +10,7 @@ class Cheater(Base):
     id = Column(Integer, primary_key=True)
     added_at = Column(DateTime, default=datetime.utcnow)
     added_by = Column(String, nullable=False)
-    steamId = Column(String, nullable=False)
+    steamId = Column(Integer, nullable=False)
     name = Column(String, nullable=False)
     nbr_VAC = Column(Integer, nullable=False)
     nbr_game_bans = Column(Integer, nullable=False)
@@ -19,4 +19,4 @@ class Cheater(Base):
     updated_at = Column(DateTime, nullable=True, onupdate=datetime.utcnow)
 
     def __repr__(self):
-        return f'<Cheater(id={self.id}, added_at={self.added_at}, added_by={self.added_by}, id_steam={self.id_steam}, name={self.name}, nbr_VAC={self.nbr_VAC}, nbr_game_bans={self.nbr_game_bans}, nbr_community_bans={self.nbr_community_bans}, days_since_last_ban={self.days_since_last_ban})>'
+        return f'<Cheater(id={self.id}, added_at={self.added_at}, added_by={self.added_by}, steamId={self.steamId}, name={self.name}, nbr_VAC={self.nbr_VAC}, nbr_game_bans={self.nbr_game_bans}, nbr_community_bans={self.nbr_community_bans}, days_since_last_ban={self.days_since_last_ban})>'
