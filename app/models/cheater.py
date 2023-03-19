@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, DateTime
+from sqlalchemy import Column, Integer, BigInteger, String, DateTime
 from sqlalchemy.ext.declarative import declarative_base
 from datetime import datetime
 
@@ -10,7 +10,7 @@ class Cheater(Base):
     id = Column(Integer, primary_key=True)
     added_at = Column(DateTime, default=datetime.utcnow)
     added_by = Column(String, nullable=False)
-    steamId = Column(Integer, nullable=False)
+    steamId = Column(BigInteger, nullable=False)
     name = Column(String, nullable=False)
     nbr_VAC = Column(Integer, nullable=False)
     nbr_game_bans = Column(Integer, nullable=False)

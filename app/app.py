@@ -93,13 +93,9 @@ async def check_all_cheaters(interaction: discord.Interaction) -> None:
 
 if __name__ == '__main__':
     # set up sqlalchemy
-    engine = create_engine('sqlite:///dev.db')
+    engine = create_engine(os.environ.get('SQLALCHEMY_DATABASE_URI'))
     Base.metadata.create_all(engine)
     Session = sessionmaker(bind=engine)
-    # print all cheaters
-    session = Session()
-    for cheater in session.query(Cheater).all():
-        print(cheater)
 
     client.run(token, log_level=logging.DEBUG)
     # client.run(os.environ['DISCORD_BOT_TOKEN'])
