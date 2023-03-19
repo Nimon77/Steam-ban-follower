@@ -1,0 +1,6 @@
+old_bot
+.venv
+.env
+dev.db
+list_cheater.sql
+__pycache__
