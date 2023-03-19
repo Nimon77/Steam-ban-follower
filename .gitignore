@@ -4,3 +4,4 @@ old_bot
 dev.db
 list_cheater.sql
 __pycache__
+mysql2sqlite
