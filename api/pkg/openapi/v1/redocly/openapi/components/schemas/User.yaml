@@ -1,0 +1,32 @@
+type: object
+properties:
+  username:
+    description: User supplied username
+    type: string
+    example: John78
+  steamID:
+    description: User Steam ID (64 bits)
+    type: number
+    minLength: 17
+    maxLength: 17
+    example: 76561198142682141
+  vacBans:
+    description: Number of VAC bans on record
+    type: integer
+    example: 0 # 0 = not banned, 1 = banned
+  gameBans:
+    description: Number of game bans on record
+    type: integer
+    example: 0
+  added:
+    description: Date the user was added to the database
+    type: string
+    format: date-time
+    example: 2021-01-01T00:00:00Z
+  lastUpdated:
+    description: Date the user was last updated
+    type: string
+    format: date-time
+    example: 2021-01-01T00:00:00Z
+required:
+  - steamID

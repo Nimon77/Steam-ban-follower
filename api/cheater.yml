@@ -1,0 +1,244 @@
+openapi: 3.1.0
+info:
+  version: 1.0.0
+  title: Steam User Monitor
+  contact:
+    email: contact@nimon.fr
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  x-logo:
+    url: https://upload.nimon.fr/download.php?id=8&token=vxPiUr9hl5JHdYFT9kRMxpJZpKdb9FXm&download
+  description: |
+    This is an **example** API to demonstrate features of the OpenAPI specification.
+    # Introduction
+    This API definition is intended to to be a good starting point for describing your API in [OpenAPI/Swagger format](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.2.md).
+    It also demonstrates features of the [create-openapi-repo](https://github.com/Redocly/create-openapi-repo) tool and the [Redoc](https://github.com/Redocly/Redoc) documentation engine. Beyond the standard OpenAPI syntax, we use a few  [vendor extensions](https://github.com/Redocly/Redoc/blob/master/docs/redoc-vendor-extensions.md).
+    # OpenAPI Specification
+    The goal of The OpenAPI Specification is to define a standard, language-agnostic interface to REST APIs which allows both humans and computers to discover and understand the capabilities of the service without access to source code, documentation, or through network traffic inspection. When properly defined via OpenAPI, a consumer can  understand and interact with the remote service with a minimal amount of implementation logic. Similar to what interfaces have done for lower-level programming, OpenAPI removes the guesswork in calling the service.
+servers:
+  - url: https://{tenant}/api/v1
+    variables:
+      tenant:
+        default: www
+        description: Your tenant id
+  - url: https://cheat.nimon.fr/api/v1
+security:
+  - bearerAuth: []
+tags:
+  - name: User
+    description: Operations about users.
+paths:
+  /users:
+    parameters:
+      - name: pretty_print
+        in: query
+        description: Pretty print response
+        schema:
+          type: boolean
+    get:
+      tags:
+        - User
+      summary: Get users
+      description: |
+        Some description of the operation.
+        You can use `Markdown` here.
+      operationId: getUsers
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '403':
+          description: Forbidden
+          $ref: '#/components/responses/Problem'
+        '404':
+          description: User not found
+          $ref: '#/components/responses/Problem'
+    post:
+      tags:
+        - User
+      summary: Upload user
+      description: This can only be done by the logged in user.
+      operationId: uploadUser
+      parameters:
+        - name: steamid
+          in: query
+          description: The Steam ID for the user
+          required: true
+          schema:
+            type: string
+            minLength: 17
+            maxLength: 17
+      requestBody:
+        description: User object that needs to be added to the database
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+  /users/{steamID}:
+    parameters:
+      - name: pretty_print
+        in: query
+        description: Pretty print response
+        schema:
+          type: boolean
+    get:
+      tags:
+        - User
+      summary: Get user by Steam ID
+      description: |
+        Some description of the operation.
+        You can use `Markdown` here.
+      operationId: getUserBySteamID
+      parameters:
+        - name: steamID
+          in: path
+          description: The Steam ID for the user
+          required: true
+          schema:
+            type: string
+            minLength: 17
+            maxLength: 17
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '403':
+          description: Forbidden
+          $ref: '#/components/responses/Problem'
+        '404':
+          description: User not found
+          $ref: '#/components/responses/Problem'
+    put:
+      tags:
+        - User
+      summary: Updated user
+      description: Update an existing user
+      operationId: updateUser
+      parameters:
+        - name: steamID
+          in: path
+          description: The Steam ID for the user
+          required: true
+          schema:
+            type: string
+            minLength: 17
+            maxLength: 17
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+        description: Updated user object
+        required: true
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: Invalid user supplied
+          $ref: '#/components/responses/Problem'
+        '404':
+          description: User not found
+          $ref: '#/components/responses/Problem'
+    delete:
+      tags:
+        - User
+      summary: Delete user
+      description: Delete an existing user
+      operationId: deleteUser
+      parameters:
+        - name: steamID
+          in: path
+          description: The Steam ID for the user
+          required: true
+          schema:
+            type: string
+            minLength: 17
+            maxLength: 17
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: Invalid user supplied
+          $ref: '#/components/responses/Problem'
+        '404':
+          description: User not found
+          $ref: '#/components/responses/Problem'
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    User:
+      type: object
+      properties:
+        username:
+          description: User supplied username
+          type: string
+          example: John78
+        steamID:
+          description: User Steam ID (64 bits)
+          type: number
+          minLength: 17
+          maxLength: 17
+          example: 76561198142682140
+        vacBans:
+          description: Number of VAC bans on record
+          type: integer
+          example: 0
+        gameBans:
+          description: Number of game bans on record
+          type: integer
+          example: 0
+        added:
+          description: Date the user was added to the database
+          type: string
+          format: date-time
+          example: '2021-01-01T00:00:00Z'
+        lastUpdated:
+          description: Date the user was last updated
+          type: string
+          format: date-time
+          example: '2021-01-01T00:00:00Z'
+      required:
+        - steamID
+    Problem:
+      type: object
+      additionalProperties: true
+      minProperties: 1
+      description: The Problem Details JSON Object [[RFC7807](https://tools.ietf.org/html/rfc7807)].
+      properties:
+        type:
+          type: string
+          description: A URI reference [[RFC3986](https://tools.ietf.org/html/rfc3986)] that identifies the problem type. It should provide human-readable documentation for the problem type. When this member is not present, its value is assumed to be "about:blank".
+          format: uri
+        title:
+          type: string
+          description: A short, human-readable summary of the problem type. It SHOULD NOT change from occurrence to occurrence of the problem, except for purposes of localization.
+        status:
+          type: integer
+          description: The HTTP status code.
+          minimum: 400
+          maximum: 599
+        detail:
+          type: string
+          description: A human-readable explanation specific to this occurrence of the problem.
+        instance:
+          type: string
+          description: A URI reference that identifies the specific occurrence of the problem.  It may or may not yield further information if dereferenced.
+  responses:
+    Problem:
+      description: Problem
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
