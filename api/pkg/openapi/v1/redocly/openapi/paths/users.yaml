@@ -1,0 +1,49 @@
+parameters:
+  - name: pretty_print
+    in: query
+    description: Pretty print response
+    schema:
+      type: boolean
+get:
+  tags:
+    - User
+  summary: Get users
+  description: |
+    Some description of the operation.
+    You can use `Markdown` here.
+  operationId: getUsers
+  responses:
+    "200":
+      description: Success
+      content:
+        application/json:
+          schema:
+            $ref: ../components/schemas/User.yaml
+    "403":
+      description: Forbidden
+      $ref: ../components/responses/Problem.yaml
+    "404":
+      description: User not found
+      $ref: ../components/responses/Problem.yaml
+post:
+  tags:
+    - User
+  summary: Upload user
+  description: This can only be done by the logged in user.
+  operationId: uploadUser
+  parameters:
+    - name: steamid
+      in: query
+      description: The Steam ID for the user
+      required: true
+      schema:
+        type: string
+        minLength: 17
+        maxLength: 17
+  requestBody:
+    description: User object that needs to be added to the database
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: ../components/schemas/User.yaml

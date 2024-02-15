@@ -1,0 +1,91 @@
+parameters:
+  - name: pretty_print
+    in: query
+    description: Pretty print response
+    schema:
+      type: boolean
+get:
+  tags:
+    - User
+  summary: Get user by Steam ID
+  description: |
+    Some description of the operation.
+    You can use `Markdown` here.
+  operationId: getUserBySteamID
+  parameters:
+    - name: steamID
+      in: path
+      description: The Steam ID for the user
+      required: true
+      schema:
+        type: string
+        minLength: 17
+        maxLength: 17
+  responses:
+    "200":
+      description: Success
+      content:
+        application/json:
+          schema:
+            $ref: ../components/schemas/User.yaml
+    "403":
+      description: Forbidden
+      $ref: ../components/responses/Problem.yaml
+    "404":
+      description: User not found
+      $ref: ../components/responses/Problem.yaml
+put:
+  tags:
+    - User
+  summary: Updated user
+  description: Update an existing user
+  operationId: updateUser
+  parameters:
+    - name: steamID
+      in: path
+      description: The Steam ID for the user
+      required: true
+      schema:
+        type: string
+        minLength: 17
+        maxLength: 17
+  requestBody:
+    content:
+      application/json:
+        schema:
+          $ref: ../components/schemas/User.yaml
+    description: Updated user object
+    required: true
+  responses:
+    "200":
+      description: OK
+    "400":
+      description: Invalid user supplied
+      $ref: ../components/responses/Problem.yaml
+    "404":
+      description: User not found
+      $ref: ../components/responses/Problem.yaml
+delete:
+  tags:
+    - User
+  summary: Delete user
+  description: Delete an existing user
+  operationId: deleteUser
+  parameters:
+    - name: steamID
+      in: path
+      description: The Steam ID for the user
+      required: true
+      schema:
+        type: string
+        minLength: 17
+        maxLength: 17
+  responses:
+    "200":
+      description: OK
+    "400":
+      description: Invalid user supplied
+      $ref: ../components/responses/Problem.yaml
+    "404":
+      description: User not found
+      $ref: ../components/responses/Problem.yaml

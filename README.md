@@ -1,3 +1,0 @@
-# steam-users-monitor
-
-## WIP
