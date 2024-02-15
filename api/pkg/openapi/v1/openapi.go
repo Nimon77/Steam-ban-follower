@@ -19,7 +19,6 @@ import (
 
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/labstack/echo/v4"
-	"github.com/oapi-codegen/runtime"
 )
 
 const (
@@ -64,12 +63,6 @@ type User struct {
 
 	// VacBans Number of VAC bans on record
 	VacBans *int `json:"vacBans,omitempty"`
-}
-
-// GetUsersParams defines parameters for GetUsers.
-type GetUsersParams struct {
-	// PrettyPrint Pretty print response
-	PrettyPrint *bool `form:"pretty_print,omitempty" json:"pretty_print,omitempty"`
 }
 
 // Getter for additional properties for Problem. Returns the specified
@@ -274,11 +267,11 @@ func WithRequestEditorFn(fn RequestEditorFn) ClientOption {
 // The interface specification for the client above.
 type ClientInterface interface {
 	// GetUsers request
-	GetUsers(ctx context.Context, params *GetUsersParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+	GetUsers(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error)
 }
 
-func (c *Client) GetUsers(ctx context.Context, params *GetUsersParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewGetUsersRequest(c.Server, params)
+func (c *Client) GetUsers(ctx context.Context, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewGetUsersRequest(c.Server)
 	if err != nil {
 		return nil, err
 	}
@@ -290,7 +283,7 @@ func (c *Client) GetUsers(ctx context.Context, params *GetUsersParams, reqEditor
 }
 
 // NewGetUsersRequest generates requests for GetUsers
-func NewGetUsersRequest(server string, params *GetUsersParams) (*http.Request, error) {
+func NewGetUsersRequest(server string) (*http.Request, error) {
 	var err error
 
 	serverURL, err := url.Parse(server)
@@ -306,28 +299,6 @@ func NewGetUsersRequest(server string, params *GetUsersParams) (*http.Request, e
 	queryURL, err := serverURL.Parse(operationPath)
 	if err != nil {
 		return nil, err
-	}
-
-	if params != nil {
-		queryValues := queryURL.Query()
-
-		if params.PrettyPrint != nil {
-
-			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "pretty_print", runtime.ParamLocationQuery, *params.PrettyPrint); err != nil {
-				return nil, err
-			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
-				return nil, err
-			} else {
-				for k, v := range parsed {
-					for _, v2 := range v {
-						queryValues.Add(k, v2)
-					}
-				}
-			}
-
-		}
-
-		queryURL.RawQuery = queryValues.Encode()
 	}
 
 	req, err := http.NewRequest("GET", queryURL.String(), nil)
@@ -382,7 +353,7 @@ func WithBaseURL(baseURL string) ClientOption {
 // ClientWithResponsesInterface is the interface specification for the client with responses above.
 type ClientWithResponsesInterface interface {
 	// GetUsersWithResponse request
-	GetUsersWithResponse(ctx context.Context, params *GetUsersParams, reqEditors ...RequestEditorFn) (*GetUsersResponse, error)
+	GetUsersWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetUsersResponse, error)
 }
 
 type GetUsersResponse struct {
@@ -410,8 +381,8 @@ func (r GetUsersResponse) StatusCode() int {
 }
 
 // GetUsersWithResponse request returning *GetUsersResponse
-func (c *ClientWithResponses) GetUsersWithResponse(ctx context.Context, params *GetUsersParams, reqEditors ...RequestEditorFn) (*GetUsersResponse, error) {
-	rsp, err := c.GetUsers(ctx, params, reqEditors...)
+func (c *ClientWithResponses) GetUsersWithResponse(ctx context.Context, reqEditors ...RequestEditorFn) (*GetUsersResponse, error) {
+	rsp, err := c.GetUsers(ctx, reqEditors...)
 	if err != nil {
 		return nil, err
 	}
@@ -462,7 +433,7 @@ func ParseGetUsersResponse(rsp *http.Response) (*GetUsersResponse, error) {
 type ServerInterface interface {
 	// Get users
 	// (GET /users)
-	GetUsers(ctx echo.Context, params GetUsersParams) error
+	GetUsers(ctx echo.Context) error
 }
 
 // ServerInterfaceWrapper converts echo contexts to parameters.
@@ -476,17 +447,8 @@ func (w *ServerInterfaceWrapper) GetUsers(ctx echo.Context) error {
 
 	ctx.Set(BearerAuthScopes, []string{})
 
-	// Parameter object where we will unmarshal all parameters from the context
-	var params GetUsersParams
-	// ------------- Optional query parameter "pretty_print" -------------
-
-	err = runtime.BindQueryParameter("form", true, false, "pretty_print", ctx.QueryParams(), &params.PrettyPrint)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter pretty_print: %s", err))
-	}
-
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.GetUsers(ctx, params)
+	err = w.Handler.GetUsers(ctx)
 	return err
 }
 
@@ -525,37 +487,36 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 // Base64 encoded, gzipped, json marshaled Swagger object
 var swaggerSpec = []string{
 
-	"H4sIAAAAAAAC/6xXe2/byBH/KoNN/zinEik7jmMLOLS+PBqnSRxEdq852+iNdofkXshd3j4kq4G+ezFL",
-	"ypIt5dIAB9gwyR3P4ze/eewXIW3TWkMmeDH+Ihz51hpP6eWDs9OaGn6U1gQygR+xbWstMWhr8raT+Otv",
-	"3ho+87KiBvnpL44KMRaP8rX+vDv1+UrvcrkcCEVeOt2yOjEW66NBr+yhJ6iUZmGsPzjbkguanQ0u0kNd",
-	"FxVB/4/wggLq2sObyfl7OJ/+RjLA1dXHV8+fHY+e3fxQhdD6cZ4Ha2ufaQpFZl2ZV6Gpc1dIFtq7ycRA",
-	"NNpsmt0fiHbj9YtQyU73tOnLKVSxQTN0hAqnNQHdtjWahCL4lqQutIRgIVTag5UyOkdGEtgCQkXQA80u",
-	"hEVLYix8cNqUYjkQ2viARtIuq5cfz8BRQZ2yUGEArcgEXWjySfOd8a8bBTgL0OACrEt/jA2w0FQrKKIL",
-	"FTnQprCu6aLRBSi6s6l2uuwDhui3HeaUvb64+ACdAEirKMGOt7qJjRg/PTlJSejeDkejO+XaBCrJsfag",
-	"Q70TDV9ZFwYPU+Fj06BbPIgaWG/GkU9en1++fQHvzy9AVmhKgsLZZhOvYL+O3gDoVlIboLAO2uha68mz",
-	"TG0l1vq/CbSdIHUfvpXTxOInJ8dH32QxC+3d7CTBVsy+srFW/H2mFT1ETFkZGzKhSzgHtq3k54pMx+aG",
-	"milzxCfitI48mTAAHTzMsI7EJ+h9bEgxklOCa4FTG8N4WqP5fC0YnY5fYiyi09tg3aElbKpthu/Sk2P4",
-	"7hcoKkVqG9UXGCgFET05mKOHJNhVJIHCgFP0JAaCbrFpmV7iYHSwPxzxz8VoNE4/v2x6qjDQMOiGdiW3",
-	"xIZ+QrOjBt7HBJctgGVgisaDNeBIWqc2HdjJ/Rp9uGzZ9P8VJYtD7OX/tOB8IGzOXmw7wDmBCZ/C2Qv4",
-	"4egQpjr4vU3Lz46eHu3vnxzvHx4cHR/sH45S9b8lU4ZKjPefpfLffO2tmwQbW+fgDDb0FfM+8gAjBXdy",
-	"m3G/sZV5drwrqBnKbyXsX6fPvy9fy4Fw9HvUjrN1dYfbzRadGVSS0emwmPBY7Mg8JXTkTiNDsXp7tcrQ",
-	"m58vRD9EWVN3ug6Mm0U3gbl5r2Y8yjTjqUlTbPXp70Y31mRFgvdhx9Y+FbCBx4/7UB8/htMPZ1w7ihpr",
-	"fHDMu4IwRNf1PubgeUuGxVYDqGuE1+YRnJngrIqSP1ybZIEFFRXa6G7GeGAMzapEU9dAKK1VPDpc0KaE",
-	"1mrTtd3O5Sl/XNjokjZt4Kp3IZ/MsSzJQcfudSMtdajiNJO2yc9Pz/JefDjZ9Dif1naaN+gDuXxGzmtr",
-	"fP4kG2UHWaP2smtzFgBrfw8Mv4XGlXTEJWVbMtjqoaPW7nTkIykr60W+Q34PuPMDGtWpTKJ/qCT93XvQ",
-	"z8mU2lAGP9HC9qp4wVDo1DppCxPwdgDz1EsAoaA5wNWMjLIO6DaQSUB82/o9/JSVPnf8edipGq5V9Wg+",
-	"uvPhXhqYJwSlxZoRvdjg1z0xZk7iZaENu70KbAA1mjJiSUMsjfVBy8QwV2A33z++nFwwbzzMKy0rwLq2",
-	"cw9TG6puOvqEO2+7MZDrrGgv7YxcOolGkUvmEqISW5zqWvNcWnHAk5tpSTDXobIxAEpJPmnyNjpJaR0a",
-	"3M/WANL0dTaWFRgKc+s+Q3BYFCkCLq5UV9087mZhvegBUDDTuAJqAAjSGp7DDiQa2HSZfxMeKEPyLzns",
-	"qLHhvt+AkNYzrAEbG03g4DR3hTXBaltqmcFEN7pGx/HN006ywttDhTPeMgyl8q3tnNywphnVHEHpsGm0",
-	"KQd3KWY/Zv0qU0byPqGgDUisa676DXSzayMGotaSjE8johsV4rRFWREcZCMxENHVfYsc5/l8Ps8wnaZ1",
-	"qv9Xn789e/7y/eTl8CAbZbxjbayeoptxad68s0YHy5237w5iLPazUbJzO6xtmZrv2iIXS2xriypbtd1c",
-	"2blJX9qq/ZtWPx5fx9Ho4CjYz2R+nN1+0JfupKqfvnmtPr26OPn88d1t++aX9p9qevLq300nu1KRZknf",
-	"NcRYPMn2kycthirNlJzHYnoqKWwPu4ltCDY+rbjLvFp18E82JgJxZ/j1HbrPbPtXqMj16N8JnykxFv+g",
-	"cJlsDu5fPw9Goz+4en7flTMtgzvum5OYaoxTdzh68jUtd26tr64sf/gd8jzAu3tGFzHEPuSApefZnzy8",
-	"WXImHDYUUhKuvmzdjymEBbSOR9vKjOAZLsbi90huIQYrRrdJ9j9JdrUJJKD6DWBqbU1oxHJ5s7lfJKub",
-	"m8XVzfKGj91s5dN9sn4JZNCEZY6tzmf7THR0mi8KKY3dacekAmPNu8l8PhcPU/GJJ3MnDFqlZD20JCvC",
-	"sK6K3h5716P4EK7zFdE8pBtFh3q2xqjjxc3yfwEAAP//BG3kYQgRAAA=",
+	"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",
 }
 
 // GetSwagger returns the content of the embedded swagger specification file
