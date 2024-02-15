@@ -72,39 +72,6 @@ type GetUsersParams struct {
 	PrettyPrint *bool `form:"pretty_print,omitempty" json:"pretty_print,omitempty"`
 }
 
-// UploadUserParams defines parameters for UploadUser.
-type UploadUserParams struct {
-	// Steamid The Steam ID for the user
-	Steamid string `form:"steamid" json:"steamid"`
-
-	// PrettyPrint Pretty print response
-	PrettyPrint *bool `form:"pretty_print,omitempty" json:"pretty_print,omitempty"`
-}
-
-// DeleteUserParams defines parameters for DeleteUser.
-type DeleteUserParams struct {
-	// PrettyPrint Pretty print response
-	PrettyPrint *bool `form:"pretty_print,omitempty" json:"pretty_print,omitempty"`
-}
-
-// GetUserBySteamIDParams defines parameters for GetUserBySteamID.
-type GetUserBySteamIDParams struct {
-	// PrettyPrint Pretty print response
-	PrettyPrint *bool `form:"pretty_print,omitempty" json:"pretty_print,omitempty"`
-}
-
-// UpdateUserParams defines parameters for UpdateUser.
-type UpdateUserParams struct {
-	// PrettyPrint Pretty print response
-	PrettyPrint *bool `form:"pretty_print,omitempty" json:"pretty_print,omitempty"`
-}
-
-// UploadUserJSONRequestBody defines body for UploadUser for application/json ContentType.
-type UploadUserJSONRequestBody = User
-
-// UpdateUserJSONRequestBody defines body for UpdateUser for application/json ContentType.
-type UpdateUserJSONRequestBody = User
-
 // Getter for additional properties for Problem. Returns the specified
 // element and whether it was found
 func (a Problem) Get(fieldName string) (value interface{}, found bool) {
@@ -308,98 +275,10 @@ func WithRequestEditorFn(fn RequestEditorFn) ClientOption {
 type ClientInterface interface {
 	// GetUsers request
 	GetUsers(ctx context.Context, params *GetUsersParams, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	// UploadUserWithBody request with any body
-	UploadUserWithBody(ctx context.Context, params *UploadUserParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	UploadUser(ctx context.Context, params *UploadUserParams, body UploadUserJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	// DeleteUser request
-	DeleteUser(ctx context.Context, steamID string, params *DeleteUserParams, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	// GetUserBySteamID request
-	GetUserBySteamID(ctx context.Context, steamID string, params *GetUserBySteamIDParams, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	// UpdateUserWithBody request with any body
-	UpdateUserWithBody(ctx context.Context, steamID string, params *UpdateUserParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
-
-	UpdateUser(ctx context.Context, steamID string, params *UpdateUserParams, body UpdateUserJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 }
 
 func (c *Client) GetUsers(ctx context.Context, params *GetUsersParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewGetUsersRequest(c.Server, params)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-func (c *Client) UploadUserWithBody(ctx context.Context, params *UploadUserParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewUploadUserRequestWithBody(c.Server, params, contentType, body)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-func (c *Client) UploadUser(ctx context.Context, params *UploadUserParams, body UploadUserJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewUploadUserRequest(c.Server, params, body)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-func (c *Client) DeleteUser(ctx context.Context, steamID string, params *DeleteUserParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewDeleteUserRequest(c.Server, steamID, params)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-func (c *Client) GetUserBySteamID(ctx context.Context, steamID string, params *GetUserBySteamIDParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewGetUserBySteamIDRequest(c.Server, steamID, params)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-func (c *Client) UpdateUserWithBody(ctx context.Context, steamID string, params *UpdateUserParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewUpdateUserRequestWithBody(c.Server, steamID, params, contentType, body)
-	if err != nil {
-		return nil, err
-	}
-	req = req.WithContext(ctx)
-	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
-		return nil, err
-	}
-	return c.Client.Do(req)
-}
-
-func (c *Client) UpdateUser(ctx context.Context, steamID string, params *UpdateUserParams, body UpdateUserJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
-	req, err := NewUpdateUserRequest(c.Server, steamID, params, body)
 	if err != nil {
 		return nil, err
 	}
@@ -459,261 +338,6 @@ func NewGetUsersRequest(server string, params *GetUsersParams) (*http.Request, e
 	return req, nil
 }
 
-// NewUploadUserRequest calls the generic UploadUser builder with application/json body
-func NewUploadUserRequest(server string, params *UploadUserParams, body UploadUserJSONRequestBody) (*http.Request, error) {
-	var bodyReader io.Reader
-	buf, err := json.Marshal(body)
-	if err != nil {
-		return nil, err
-	}
-	bodyReader = bytes.NewReader(buf)
-	return NewUploadUserRequestWithBody(server, params, "application/json", bodyReader)
-}
-
-// NewUploadUserRequestWithBody generates requests for UploadUser with any type of body
-func NewUploadUserRequestWithBody(server string, params *UploadUserParams, contentType string, body io.Reader) (*http.Request, error) {
-	var err error
-
-	serverURL, err := url.Parse(server)
-	if err != nil {
-		return nil, err
-	}
-
-	operationPath := fmt.Sprintf("/users")
-	if operationPath[0] == '/' {
-		operationPath = "." + operationPath
-	}
-
-	queryURL, err := serverURL.Parse(operationPath)
-	if err != nil {
-		return nil, err
-	}
-
-	if params != nil {
-		queryValues := queryURL.Query()
-
-		if queryFrag, err := runtime.StyleParamWithLocation("form", true, "steamid", runtime.ParamLocationQuery, params.Steamid); err != nil {
-			return nil, err
-		} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
-			return nil, err
-		} else {
-			for k, v := range parsed {
-				for _, v2 := range v {
-					queryValues.Add(k, v2)
-				}
-			}
-		}
-
-		if params.PrettyPrint != nil {
-
-			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "pretty_print", runtime.ParamLocationQuery, *params.PrettyPrint); err != nil {
-				return nil, err
-			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
-				return nil, err
-			} else {
-				for k, v := range parsed {
-					for _, v2 := range v {
-						queryValues.Add(k, v2)
-					}
-				}
-			}
-
-		}
-
-		queryURL.RawQuery = queryValues.Encode()
-	}
-
-	req, err := http.NewRequest("POST", queryURL.String(), body)
-	if err != nil {
-		return nil, err
-	}
-
-	req.Header.Add("Content-Type", contentType)
-
-	return req, nil
-}
-
-// NewDeleteUserRequest generates requests for DeleteUser
-func NewDeleteUserRequest(server string, steamID string, params *DeleteUserParams) (*http.Request, error) {
-	var err error
-
-	var pathParam0 string
-
-	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "steamID", runtime.ParamLocationPath, steamID)
-	if err != nil {
-		return nil, err
-	}
-
-	serverURL, err := url.Parse(server)
-	if err != nil {
-		return nil, err
-	}
-
-	operationPath := fmt.Sprintf("/users/%s", pathParam0)
-	if operationPath[0] == '/' {
-		operationPath = "." + operationPath
-	}
-
-	queryURL, err := serverURL.Parse(operationPath)
-	if err != nil {
-		return nil, err
-	}
-
-	if params != nil {
-		queryValues := queryURL.Query()
-
-		if params.PrettyPrint != nil {
-
-			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "pretty_print", runtime.ParamLocationQuery, *params.PrettyPrint); err != nil {
-				return nil, err
-			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
-				return nil, err
-			} else {
-				for k, v := range parsed {
-					for _, v2 := range v {
-						queryValues.Add(k, v2)
-					}
-				}
-			}
-
-		}
-
-		queryURL.RawQuery = queryValues.Encode()
-	}
-
-	req, err := http.NewRequest("DELETE", queryURL.String(), nil)
-	if err != nil {
-		return nil, err
-	}
-
-	return req, nil
-}
-
-// NewGetUserBySteamIDRequest generates requests for GetUserBySteamID
-func NewGetUserBySteamIDRequest(server string, steamID string, params *GetUserBySteamIDParams) (*http.Request, error) {
-	var err error
-
-	var pathParam0 string
-
-	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "steamID", runtime.ParamLocationPath, steamID)
-	if err != nil {
-		return nil, err
-	}
-
-	serverURL, err := url.Parse(server)
-	if err != nil {
-		return nil, err
-	}
-
-	operationPath := fmt.Sprintf("/users/%s", pathParam0)
-	if operationPath[0] == '/' {
-		operationPath = "." + operationPath
-	}
-
-	queryURL, err := serverURL.Parse(operationPath)
-	if err != nil {
-		return nil, err
-	}
-
-	if params != nil {
-		queryValues := queryURL.Query()
-
-		if params.PrettyPrint != nil {
-
-			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "pretty_print", runtime.ParamLocationQuery, *params.PrettyPrint); err != nil {
-				return nil, err
-			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
-				return nil, err
-			} else {
-				for k, v := range parsed {
-					for _, v2 := range v {
-						queryValues.Add(k, v2)
-					}
-				}
-			}
-
-		}
-
-		queryURL.RawQuery = queryValues.Encode()
-	}
-
-	req, err := http.NewRequest("GET", queryURL.String(), nil)
-	if err != nil {
-		return nil, err
-	}
-
-	return req, nil
-}
-
-// NewUpdateUserRequest calls the generic UpdateUser builder with application/json body
-func NewUpdateUserRequest(server string, steamID string, params *UpdateUserParams, body UpdateUserJSONRequestBody) (*http.Request, error) {
-	var bodyReader io.Reader
-	buf, err := json.Marshal(body)
-	if err != nil {
-		return nil, err
-	}
-	bodyReader = bytes.NewReader(buf)
-	return NewUpdateUserRequestWithBody(server, steamID, params, "application/json", bodyReader)
-}
-
-// NewUpdateUserRequestWithBody generates requests for UpdateUser with any type of body
-func NewUpdateUserRequestWithBody(server string, steamID string, params *UpdateUserParams, contentType string, body io.Reader) (*http.Request, error) {
-	var err error
-
-	var pathParam0 string
-
-	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "steamID", runtime.ParamLocationPath, steamID)
-	if err != nil {
-		return nil, err
-	}
-
-	serverURL, err := url.Parse(server)
-	if err != nil {
-		return nil, err
-	}
-
-	operationPath := fmt.Sprintf("/users/%s", pathParam0)
-	if operationPath[0] == '/' {
-		operationPath = "." + operationPath
-	}
-
-	queryURL, err := serverURL.Parse(operationPath)
-	if err != nil {
-		return nil, err
-	}
-
-	if params != nil {
-		queryValues := queryURL.Query()
-
-		if params.PrettyPrint != nil {
-
-			if queryFrag, err := runtime.StyleParamWithLocation("form", true, "pretty_print", runtime.ParamLocationQuery, *params.PrettyPrint); err != nil {
-				return nil, err
-			} else if parsed, err := url.ParseQuery(queryFrag); err != nil {
-				return nil, err
-			} else {
-				for k, v := range parsed {
-					for _, v2 := range v {
-						queryValues.Add(k, v2)
-					}
-				}
-			}
-
-		}
-
-		queryURL.RawQuery = queryValues.Encode()
-	}
-
-	req, err := http.NewRequest("PUT", queryURL.String(), body)
-	if err != nil {
-		return nil, err
-	}
-
-	req.Header.Add("Content-Type", contentType)
-
-	return req, nil
-}
-
 func (c *Client) applyEditors(ctx context.Context, req *http.Request, additionalEditors []RequestEditorFn) error {
 	for _, r := range c.RequestEditors {
 		if err := r(ctx, req); err != nil {
@@ -759,22 +383,6 @@ func WithBaseURL(baseURL string) ClientOption {
 type ClientWithResponsesInterface interface {
 	// GetUsersWithResponse request
 	GetUsersWithResponse(ctx context.Context, params *GetUsersParams, reqEditors ...RequestEditorFn) (*GetUsersResponse, error)
-
-	// UploadUserWithBodyWithResponse request with any body
-	UploadUserWithBodyWithResponse(ctx context.Context, params *UploadUserParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UploadUserResponse, error)
-
-	UploadUserWithResponse(ctx context.Context, params *UploadUserParams, body UploadUserJSONRequestBody, reqEditors ...RequestEditorFn) (*UploadUserResponse, error)
-
-	// DeleteUserWithResponse request
-	DeleteUserWithResponse(ctx context.Context, steamID string, params *DeleteUserParams, reqEditors ...RequestEditorFn) (*DeleteUserResponse, error)
-
-	// GetUserBySteamIDWithResponse request
-	GetUserBySteamIDWithResponse(ctx context.Context, steamID string, params *GetUserBySteamIDParams, reqEditors ...RequestEditorFn) (*GetUserBySteamIDResponse, error)
-
-	// UpdateUserWithBodyWithResponse request with any body
-	UpdateUserWithBodyWithResponse(ctx context.Context, steamID string, params *UpdateUserParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateUserResponse, error)
-
-	UpdateUserWithResponse(ctx context.Context, steamID string, params *UpdateUserParams, body UpdateUserJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateUserResponse, error)
 }
 
 type GetUsersResponse struct {
@@ -801,97 +409,6 @@ func (r GetUsersResponse) StatusCode() int {
 	return 0
 }
 
-type UploadUserResponse struct {
-	Body         []byte
-	HTTPResponse *http.Response
-}
-
-// Status returns HTTPResponse.Status
-func (r UploadUserResponse) Status() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Status
-	}
-	return http.StatusText(0)
-}
-
-// StatusCode returns HTTPResponse.StatusCode
-func (r UploadUserResponse) StatusCode() int {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.StatusCode
-	}
-	return 0
-}
-
-type DeleteUserResponse struct {
-	Body                      []byte
-	HTTPResponse              *http.Response
-	ApplicationproblemJSON400 *Problem
-	ApplicationproblemJSON404 *Problem
-}
-
-// Status returns HTTPResponse.Status
-func (r DeleteUserResponse) Status() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Status
-	}
-	return http.StatusText(0)
-}
-
-// StatusCode returns HTTPResponse.StatusCode
-func (r DeleteUserResponse) StatusCode() int {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.StatusCode
-	}
-	return 0
-}
-
-type GetUserBySteamIDResponse struct {
-	Body                      []byte
-	HTTPResponse              *http.Response
-	JSON200                   *User
-	ApplicationproblemJSON403 *Problem
-	ApplicationproblemJSON404 *Problem
-}
-
-// Status returns HTTPResponse.Status
-func (r GetUserBySteamIDResponse) Status() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Status
-	}
-	return http.StatusText(0)
-}
-
-// StatusCode returns HTTPResponse.StatusCode
-func (r GetUserBySteamIDResponse) StatusCode() int {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.StatusCode
-	}
-	return 0
-}
-
-type UpdateUserResponse struct {
-	Body                      []byte
-	HTTPResponse              *http.Response
-	ApplicationproblemJSON400 *Problem
-	ApplicationproblemJSON404 *Problem
-}
-
-// Status returns HTTPResponse.Status
-func (r UpdateUserResponse) Status() string {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.Status
-	}
-	return http.StatusText(0)
-}
-
-// StatusCode returns HTTPResponse.StatusCode
-func (r UpdateUserResponse) StatusCode() int {
-	if r.HTTPResponse != nil {
-		return r.HTTPResponse.StatusCode
-	}
-	return 0
-}
-
 // GetUsersWithResponse request returning *GetUsersResponse
 func (c *ClientWithResponses) GetUsersWithResponse(ctx context.Context, params *GetUsersParams, reqEditors ...RequestEditorFn) (*GetUsersResponse, error) {
 	rsp, err := c.GetUsers(ctx, params, reqEditors...)
@@ -899,58 +416,6 @@ func (c *ClientWithResponses) GetUsersWithResponse(ctx context.Context, params *
 		return nil, err
 	}
 	return ParseGetUsersResponse(rsp)
-}
-
-// UploadUserWithBodyWithResponse request with arbitrary body returning *UploadUserResponse
-func (c *ClientWithResponses) UploadUserWithBodyWithResponse(ctx context.Context, params *UploadUserParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UploadUserResponse, error) {
-	rsp, err := c.UploadUserWithBody(ctx, params, contentType, body, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseUploadUserResponse(rsp)
-}
-
-func (c *ClientWithResponses) UploadUserWithResponse(ctx context.Context, params *UploadUserParams, body UploadUserJSONRequestBody, reqEditors ...RequestEditorFn) (*UploadUserResponse, error) {
-	rsp, err := c.UploadUser(ctx, params, body, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseUploadUserResponse(rsp)
-}
-
-// DeleteUserWithResponse request returning *DeleteUserResponse
-func (c *ClientWithResponses) DeleteUserWithResponse(ctx context.Context, steamID string, params *DeleteUserParams, reqEditors ...RequestEditorFn) (*DeleteUserResponse, error) {
-	rsp, err := c.DeleteUser(ctx, steamID, params, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseDeleteUserResponse(rsp)
-}
-
-// GetUserBySteamIDWithResponse request returning *GetUserBySteamIDResponse
-func (c *ClientWithResponses) GetUserBySteamIDWithResponse(ctx context.Context, steamID string, params *GetUserBySteamIDParams, reqEditors ...RequestEditorFn) (*GetUserBySteamIDResponse, error) {
-	rsp, err := c.GetUserBySteamID(ctx, steamID, params, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseGetUserBySteamIDResponse(rsp)
-}
-
-// UpdateUserWithBodyWithResponse request with arbitrary body returning *UpdateUserResponse
-func (c *ClientWithResponses) UpdateUserWithBodyWithResponse(ctx context.Context, steamID string, params *UpdateUserParams, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*UpdateUserResponse, error) {
-	rsp, err := c.UpdateUserWithBody(ctx, steamID, params, contentType, body, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseUpdateUserResponse(rsp)
-}
-
-func (c *ClientWithResponses) UpdateUserWithResponse(ctx context.Context, steamID string, params *UpdateUserParams, body UpdateUserJSONRequestBody, reqEditors ...RequestEditorFn) (*UpdateUserResponse, error) {
-	rsp, err := c.UpdateUser(ctx, steamID, params, body, reqEditors...)
-	if err != nil {
-		return nil, err
-	}
-	return ParseUpdateUserResponse(rsp)
 }
 
 // ParseGetUsersResponse parses an HTTP response from a GetUsersWithResponse call
@@ -993,145 +458,11 @@ func ParseGetUsersResponse(rsp *http.Response) (*GetUsersResponse, error) {
 	return response, nil
 }
 
-// ParseUploadUserResponse parses an HTTP response from a UploadUserWithResponse call
-func ParseUploadUserResponse(rsp *http.Response) (*UploadUserResponse, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
-	defer func() { _ = rsp.Body.Close() }()
-	if err != nil {
-		return nil, err
-	}
-
-	response := &UploadUserResponse{
-		Body:         bodyBytes,
-		HTTPResponse: rsp,
-	}
-
-	return response, nil
-}
-
-// ParseDeleteUserResponse parses an HTTP response from a DeleteUserWithResponse call
-func ParseDeleteUserResponse(rsp *http.Response) (*DeleteUserResponse, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
-	defer func() { _ = rsp.Body.Close() }()
-	if err != nil {
-		return nil, err
-	}
-
-	response := &DeleteUserResponse{
-		Body:         bodyBytes,
-		HTTPResponse: rsp,
-	}
-
-	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
-		var dest Problem
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.ApplicationproblemJSON400 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
-		var dest Problem
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.ApplicationproblemJSON404 = &dest
-
-	}
-
-	return response, nil
-}
-
-// ParseGetUserBySteamIDResponse parses an HTTP response from a GetUserBySteamIDWithResponse call
-func ParseGetUserBySteamIDResponse(rsp *http.Response) (*GetUserBySteamIDResponse, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
-	defer func() { _ = rsp.Body.Close() }()
-	if err != nil {
-		return nil, err
-	}
-
-	response := &GetUserBySteamIDResponse{
-		Body:         bodyBytes,
-		HTTPResponse: rsp,
-	}
-
-	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
-		var dest User
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.JSON200 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
-		var dest Problem
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.ApplicationproblemJSON403 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
-		var dest Problem
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.ApplicationproblemJSON404 = &dest
-
-	}
-
-	return response, nil
-}
-
-// ParseUpdateUserResponse parses an HTTP response from a UpdateUserWithResponse call
-func ParseUpdateUserResponse(rsp *http.Response) (*UpdateUserResponse, error) {
-	bodyBytes, err := io.ReadAll(rsp.Body)
-	defer func() { _ = rsp.Body.Close() }()
-	if err != nil {
-		return nil, err
-	}
-
-	response := &UpdateUserResponse{
-		Body:         bodyBytes,
-		HTTPResponse: rsp,
-	}
-
-	switch {
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
-		var dest Problem
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.ApplicationproblemJSON400 = &dest
-
-	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
-		var dest Problem
-		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
-			return nil, err
-		}
-		response.ApplicationproblemJSON404 = &dest
-
-	}
-
-	return response, nil
-}
-
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
 	// Get users
 	// (GET /users)
 	GetUsers(ctx echo.Context, params GetUsersParams) error
-	// Upload user
-	// (POST /users)
-	UploadUser(ctx echo.Context, params UploadUserParams) error
-	// Delete user
-	// (DELETE /users/{steamID})
-	DeleteUser(ctx echo.Context, steamID string, params DeleteUserParams) error
-	// Get user by Steam ID
-	// (GET /users/{steamID})
-	GetUserBySteamID(ctx echo.Context, steamID string, params GetUserBySteamIDParams) error
-	// Updated user
-	// (PUT /users/{steamID})
-	UpdateUser(ctx echo.Context, steamID string, params UpdateUserParams) error
 }
 
 // ServerInterfaceWrapper converts echo contexts to parameters.
@@ -1156,114 +487,6 @@ func (w *ServerInterfaceWrapper) GetUsers(ctx echo.Context) error {
 
 	// Invoke the callback with all the unmarshaled arguments
 	err = w.Handler.GetUsers(ctx, params)
-	return err
-}
-
-// UploadUser converts echo context to params.
-func (w *ServerInterfaceWrapper) UploadUser(ctx echo.Context) error {
-	var err error
-
-	ctx.Set(BearerAuthScopes, []string{})
-
-	// Parameter object where we will unmarshal all parameters from the context
-	var params UploadUserParams
-	// ------------- Required query parameter "steamid" -------------
-
-	err = runtime.BindQueryParameter("form", true, true, "steamid", ctx.QueryParams(), &params.Steamid)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter steamid: %s", err))
-	}
-
-	// ------------- Optional query parameter "pretty_print" -------------
-
-	err = runtime.BindQueryParameter("form", true, false, "pretty_print", ctx.QueryParams(), &params.PrettyPrint)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter pretty_print: %s", err))
-	}
-
-	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.UploadUser(ctx, params)
-	return err
-}
-
-// DeleteUser converts echo context to params.
-func (w *ServerInterfaceWrapper) DeleteUser(ctx echo.Context) error {
-	var err error
-	// ------------- Path parameter "steamID" -------------
-	var steamID string
-
-	err = runtime.BindStyledParameterWithOptions("simple", "steamID", ctx.Param("steamID"), &steamID, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter steamID: %s", err))
-	}
-
-	ctx.Set(BearerAuthScopes, []string{})
-
-	// Parameter object where we will unmarshal all parameters from the context
-	var params DeleteUserParams
-	// ------------- Optional query parameter "pretty_print" -------------
-
-	err = runtime.BindQueryParameter("form", true, false, "pretty_print", ctx.QueryParams(), &params.PrettyPrint)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter pretty_print: %s", err))
-	}
-
-	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.DeleteUser(ctx, steamID, params)
-	return err
-}
-
-// GetUserBySteamID converts echo context to params.
-func (w *ServerInterfaceWrapper) GetUserBySteamID(ctx echo.Context) error {
-	var err error
-	// ------------- Path parameter "steamID" -------------
-	var steamID string
-
-	err = runtime.BindStyledParameterWithOptions("simple", "steamID", ctx.Param("steamID"), &steamID, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter steamID: %s", err))
-	}
-
-	ctx.Set(BearerAuthScopes, []string{})
-
-	// Parameter object where we will unmarshal all parameters from the context
-	var params GetUserBySteamIDParams
-	// ------------- Optional query parameter "pretty_print" -------------
-
-	err = runtime.BindQueryParameter("form", true, false, "pretty_print", ctx.QueryParams(), &params.PrettyPrint)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter pretty_print: %s", err))
-	}
-
-	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.GetUserBySteamID(ctx, steamID, params)
-	return err
-}
-
-// UpdateUser converts echo context to params.
-func (w *ServerInterfaceWrapper) UpdateUser(ctx echo.Context) error {
-	var err error
-	// ------------- Path parameter "steamID" -------------
-	var steamID string
-
-	err = runtime.BindStyledParameterWithOptions("simple", "steamID", ctx.Param("steamID"), &steamID, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter steamID: %s", err))
-	}
-
-	ctx.Set(BearerAuthScopes, []string{})
-
-	// Parameter object where we will unmarshal all parameters from the context
-	var params UpdateUserParams
-	// ------------- Optional query parameter "pretty_print" -------------
-
-	err = runtime.BindQueryParameter("form", true, false, "pretty_print", ctx.QueryParams(), &params.PrettyPrint)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter pretty_print: %s", err))
-	}
-
-	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.UpdateUser(ctx, steamID, params)
 	return err
 }
 
@@ -1296,51 +519,43 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 	}
 
 	router.GET(baseURL+"/users", wrapper.GetUsers)
-	router.POST(baseURL+"/users", wrapper.UploadUser)
-	router.DELETE(baseURL+"/users/:steamID", wrapper.DeleteUser)
-	router.GET(baseURL+"/users/:steamID", wrapper.GetUserBySteamID)
-	router.PUT(baseURL+"/users/:steamID", wrapper.UpdateUser)
 
 }
 
 // Base64 encoded, gzipped, json marshaled Swagger object
 var swaggerSpec = []string{
 
-	"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",
+	"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",
 }
 
 // GetSwagger returns the content of the embedded swagger specification file

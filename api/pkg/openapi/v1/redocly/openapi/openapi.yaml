@@ -49,8 +49,8 @@ servers:
 paths:
   /users:
     $ref: paths/users.yaml
-  /users/{steamID}:
-    $ref: paths/users_{steamID}.yaml
+  # /users/{steamID}:
+  #   $ref: paths/users_{steamID}.yaml
 components:
   securitySchemes:
     bearerAuth:

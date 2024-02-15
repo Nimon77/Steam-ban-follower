@@ -1,0 +1,13 @@
+package: openapi
+generate:
+  echo-server: true
+  #  strict-server: true
+  client: true
+  models: true
+  embedded-spec: true
+additional-imports:
+  - package: github.com/nimon77/steam-users-monitor/api/pkg/openapi/v1/models
+    alias: .
+output: openapi-server.gen.go
+output-options:
+  skip-prune: true
